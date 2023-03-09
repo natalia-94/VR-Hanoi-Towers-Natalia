@@ -21,18 +21,18 @@ public class NoSelectObject : MonoBehaviour
     {
         
     }
+
+    
     void OnCollisionEnter(Collision collision)
     {
         int colliderLayer = collision.gameObject.layer;
-        Debug.Log("Colision con: " + collision.gameObject.name + " Layer: " + colliderLayer);
+        double currentDiskY = this.gameObject.transform.position.y;
         double colliderY = collision.collider.transform.position.y;
-        if (colliderLayer == 3) {
-            //Component xrGrab = 
-            
-            Debug.Log("GameObject:" + this.gameObject.name + " Layer:" + this.gameObject.layer);
+        Debug.Log("Objeto current: " + this.gameObject.name + "\nPositionY:" + currentDiskY + "\n Objeto que llega: " + collision.gameObject.name + "\nPositionY:" + colliderY);
+
+        if (colliderLayer == 3 && (currentDiskY < colliderY)) {
+            this.gameObject.layer = 0;
         }
-
-
     }
 
     private void OnCollisionExit(Collision collision)

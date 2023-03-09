@@ -35,6 +35,15 @@ public class DiskOrderEvaluation : MonoBehaviour
     {
         
     }
+
+    //Obtener los game objects de las 3 columnas
+    //Obtener los game objects de los discos
+    //Iniciar el juego con tres discos en una columna y agregarlos a su lista
+    //Cambiar el tipo de game object o tag de los discos inferiores para que no se puedan agarrar.
+    //Al hacer colision, evaluar que columna fue y que disco, y agregar a una lista de esa columna
+    //Al salir de colision, evaluar deque columna sale y eliminar ese disco de la columna
+    //
+
     void OnCollisionEnter(Collision collision)
     {
         double collisionObjectYPosition = collision.gameObject.transform.position.y;
@@ -42,30 +51,24 @@ public class DiskOrderEvaluation : MonoBehaviour
         var found = this.diskList.Find(d => d.name == collision.gameObject.name);
         if (!found) {            
             this.diskList.Add(collision.gameObject);
-            //Debug.Log("SE PONE " + collision.gameObject.name);
         }
         EvaluateDisksOrder();
     }
 
     private void OnCollisionExit(Collision collision)
     {
-        //Debug.Log("Sale " + collision.gameObject.name);
         if (this.diskList.Count == 0) return;
 
         int index = this.diskList.FindIndex(d => d.name == collision.gameObject.name);
         if(index != -1)
         {
             this.diskList.RemoveAt(index);
-            //Debug.Log("SE QUITA " + collision.gameObject.name);
         } 
     }
 
     private void EvaluateDisksOrder()
     {
-       // Debug.Log("DISCOS: " + this.diskList.Count);
         if (this.diskList.Count < 3) return;
-
-        //Debug.Log("Disco 0:" + this.diskList[0].name + " Disco 1:" + this.diskList[1].name + " Disco 2:" + this.diskList[2].name);
 
         if (this.diskList[0].name.Equals(bigDisk.name) &&
            this.diskList[1].name.Equals(mediumDisk.name) &&
