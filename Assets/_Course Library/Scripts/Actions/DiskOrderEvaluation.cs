@@ -1,10 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class DiskOrderEvaluation : MonoBehaviour
 {
-    // Verificar que si hay otro disco arriba, no se pueda sacar
+    // Verificar que si hay otro disco arriba, no se pueda sacar [X]
     // Desplegar un UI de Ganaste al apilar los discos de manera correcta
     // Establecer un temporizador con 30 seg.
     // Mostrar UI con los movimiento por default
@@ -36,16 +37,10 @@ public class DiskOrderEvaluation : MonoBehaviour
         
     }
 
-    //Obtener los game objects de las 3 columnas
-    //Obtener los game objects de los discos
-    //Iniciar el juego con tres discos en una columna y agregarlos a su lista
-    //Cambiar el tipo de game object o tag de los discos inferiores para que no se puedan agarrar.
-    //Al hacer colision, evaluar que columna fue y que disco, y agregar a una lista de esa columna
-    //Al salir de colision, evaluar deque columna sale y eliminar ese disco de la columna
-    //
-
     void OnCollisionEnter(Collision collision)
     {
+        if (WelcomeRestartCanvasActive()) return;
+
         double collisionObjectYPosition = collision.gameObject.transform.position.y;
         collision.gameObject.transform.position = new Vector3(this.column.transform.position.x, (float)collisionObjectYPosition, this.column.transform.position.z);
         var found = this.diskList.Find(d => d.name == collision.gameObject.name);
@@ -68,22 +63,45 @@ public class DiskOrderEvaluation : MonoBehaviour
 
     private void EvaluateDisksOrder()
     {
-        if (this.diskList.Count < 3) return;
+        if (this.diskList.Count < 3) return;        
 
         if (this.diskList[0].name.Equals(bigDisk.name) &&
            this.diskList[1].name.Equals(mediumDisk.name) &&
            this.diskList[2].name.Equals(smallDisk.name))
         {
-            //Debug.Log("Ganaste!");
+            DisplayWinCanvas();
+            ActivateControllRays();
         }
     }
 
-    private void printList(List<GameObject> lista)
+    private void ActivateControllRays()
     {
-        Debug.Log("Size: " + lista.Count);
-        lista.ForEach(i =>
-        {
-            Debug.Log(i.name);
-        });
+        GameObject rightHandRay = GameObject.Find("RightHand Ray");
+        GameObject leftHandRay = GameObject.Find("LeftHand Ray");
+        ToggleRay toggleRayRight = rightHandRay.GetComponent<ToggleRay>();
+        ToggleRay toggleRayLeft = leftHandRay.GetComponent<ToggleRay>();
+
+        toggleRayRight.ActivateRay();
+        toggleRayLeft.ActivateRay();
+    }
+
+    private void DisplayWinCanvas()
+    {
+        GameObject canvasWin = GameObject.Find("Canvas_Win");
+        ToggleInterface toggleInterface = canvasWin.GetComponent<ToggleInterface>();
+        toggleInterface.Toggle();
+    }
+    
+    private bool WelcomeRestartCanvasActive()
+    {
+        bool active = false;
+        GameObject welcomeBackground = GameObject.Find("Welcome_Background");
+        GameObject resetBackground = GameObject.Find("Reset_Background");
+
+        if (welcomeBackground != null || resetBackground != null) { 
+            active = true; 
+        }
+
+        return active;
     }
 }
