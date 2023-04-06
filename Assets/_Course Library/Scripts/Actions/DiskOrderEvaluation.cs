@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.XR.Interaction.Toolkit;
 
 public class DiskOrderEvaluation : MonoBehaviour
 {
@@ -61,7 +62,7 @@ public class DiskOrderEvaluation : MonoBehaviour
         } 
     }
 
-    private void EvaluateDisksOrder()
+    public void EvaluateDisksOrder()
     {
         if (this.diskList.Count < 3) return;        
 
@@ -69,20 +70,36 @@ public class DiskOrderEvaluation : MonoBehaviour
            this.diskList[1].name.Equals(mediumDisk.name) &&
            this.diskList[2].name.Equals(smallDisk.name))
         {
-            DisplayWinCanvas();
-            ActivateControllRays();
+            DisplayWinCanvas();            
         }
     }
 
     private void ActivateControllRays()
     {
+
+        GameObject rightHandInteractor = GameObject.Find("RightHand Controller");
+        GameObject leftHandInteractor = GameObject.Find("LeftHand Controller");
+
+        XRDirectInteractor rightDirectInt = rightHandInteractor.GetComponent<XRDirectInteractor>();
+        XRDirectInteractor leftDirectInt = leftHandInteractor.GetComponent<XRDirectInteractor>();
+
         GameObject rightHandRay = GameObject.Find("RightHand Ray");
         GameObject leftHandRay = GameObject.Find("LeftHand Ray");
-        ToggleRay toggleRayRight = rightHandRay.GetComponent<ToggleRay>();
-        ToggleRay toggleRayLeft = leftHandRay.GetComponent<ToggleRay>();
 
-        toggleRayRight.ActivateRay();
-        toggleRayLeft.ActivateRay();
+        XRRayInteractor rightRayInteractor = rightHandRay.GetComponent<XRRayInteractor>();
+        XRRayInteractor leftRayInteractor = leftHandRay.GetComponent<XRRayInteractor>();
+
+        rightRayInteractor.enabled = true;
+        rightDirectInt.enabled = false;
+
+        leftRayInteractor.enabled = true;
+        leftDirectInt.enabled = false;
+
+        //ToggleRay toggleRayRight = rightHandRay.GetComponent<ToggleRay>();
+        //ToggleRay toggleRayLeft = leftHandRay.GetComponent<ToggleRay>();
+
+        //toggleRayRight.ActivateRay();
+        //toggleRayLeft.ActivateRay();
     }
 
     private void DisplayWinCanvas()
@@ -90,6 +107,7 @@ public class DiskOrderEvaluation : MonoBehaviour
         GameObject canvasWin = GameObject.Find("Canvas_Win");
         ToggleInterface toggleInterface = canvasWin.GetComponent<ToggleInterface>();
         toggleInterface.Toggle();
+        ActivateControllRays();
     }
     
     private bool WelcomeRestartCanvasActive()
