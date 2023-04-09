@@ -11,24 +11,29 @@ public class DiskOrderEvaluation : MonoBehaviour
     // Establecer un temporizador con 30 seg.
     // Mostrar UI con los movimiento por default
 
-    [Tooltip("The big size disk")]
-    public GameObject bigDisk;
+    [Tooltip("The biggest size disk")]
+    public GameObject bigBlue;
 
     [Tooltip("The medium size disk")]
-    public GameObject mediumDisk;
+    public GameObject mediumRed;
 
-    [Tooltip("The small size disk")]
-    public GameObject smallDisk;
+    [Tooltip("The medium small disk")]
+    public GameObject mediumGreen;
+
+    [Tooltip("The smalles disk")]
+    public GameObject smallYellow;
 
     //private int defaultTries; // 2^n - 1
     private List<GameObject> diskList;
     private GameObject column;
+    private string diskTag;
 
     // Start is called before the first frame update
     void Start()
     {
         this.column = this.gameObject;
         this.diskList = new List<GameObject>();
+        this.diskTag = "disk";
         //this.defaultTries = 7;
     }
 
@@ -38,73 +43,66 @@ public class DiskOrderEvaluation : MonoBehaviour
         
     }
 
-    void OnCollisionEnter(Collision collision)
+
+    private void OnTriggerEnter(Collider collision)
     {
         if (WelcomeRestartCanvasActive()) return;
-
-        double collisionObjectYPosition = collision.gameObject.transform.position.y;
-        collision.gameObject.transform.position = new Vector3(this.column.transform.position.x, (float)collisionObjectYPosition, this.column.transform.position.z);
+        if (!collision.gameObject.tag.Equals(this.diskTag)) return;
+        
         var found = this.diskList.Find(d => d.name == collision.gameObject.name);
-        if (!found) {            
+        if (!found)
+        {
             this.diskList.Add(collision.gameObject);
+            double collisionObjectYPosition = collision.gameObject.transform.position.y;
+            collision.gameObject.transform.position = new Vector3(this.column.transform.position.x, (float)collisionObjectYPosition, this.column.transform.position.z);
+            Debug.Log("Entra a " + this.column.name + ":" + collision.gameObject.name);
+            EvaluateDisksOrder();
         }
-        EvaluateDisksOrder();
     }
 
-    private void OnCollisionExit(Collision collision)
+    private void OnTriggerExit(Collider collision)
     {
         if (this.diskList.Count == 0) return;
 
         int index = this.diskList.FindIndex(d => d.name == collision.gameObject.name);
-        if(index != -1)
+        if (index != -1)
         {
             this.diskList.RemoveAt(index);
-        } 
+            Debug.Log("Sale de " + this.column.name + ":" + collision.gameObject.name);
+        }
     }
 
     public void EvaluateDisksOrder()
     {
-        if (this.diskList.Count < 3) return;        
+        if (this.diskList.Count < 4) return;        
 
-        if (this.diskList[0].name.Equals(bigDisk.name) &&
-           this.diskList[1].name.Equals(mediumDisk.name) &&
-           this.diskList[2].name.Equals(smallDisk.name))
+        if (this.diskList[0].name.Equals(bigBlue.name) &&
+           this.diskList[1].name.Equals(mediumRed.name) &&
+           this.diskList[2].name.Equals(mediumGreen.name) &&
+           this.diskList[3].name.Equals(smallYellow.name))
         {
-            DisplayWinCanvas();            
+            DisplayWinCanvas();
+            this.diskList.Clear();
         }
     }
 
     private void ActivateControllRays()
     {
 
-        GameObject rightHandInteractor = GameObject.Find("RightHand Controller");
-        GameObject leftHandInteractor = GameObject.Find("LeftHand Controller");
-
-        XRDirectInteractor rightDirectInt = rightHandInteractor.GetComponent<XRDirectInteractor>();
-        XRDirectInteractor leftDirectInt = leftHandInteractor.GetComponent<XRDirectInteractor>();
-
         GameObject rightHandRay = GameObject.Find("RightHand Ray");
         GameObject leftHandRay = GameObject.Find("LeftHand Ray");
 
-        XRRayInteractor rightRayInteractor = rightHandRay.GetComponent<XRRayInteractor>();
-        XRRayInteractor leftRayInteractor = leftHandRay.GetComponent<XRRayInteractor>();
+        ToggleRay toggleRayRight = rightHandRay.GetComponent<ToggleRay>();
+        ToggleRay toggleRayLeft = leftHandRay.GetComponent<ToggleRay>();
 
-        rightRayInteractor.enabled = true;
-        rightDirectInt.enabled = false;
-
-        leftRayInteractor.enabled = true;
-        leftDirectInt.enabled = false;
-
-        //ToggleRay toggleRayRight = rightHandRay.GetComponent<ToggleRay>();
-        //ToggleRay toggleRayLeft = leftHandRay.GetComponent<ToggleRay>();
-
-        //toggleRayRight.ActivateRay();
-        //toggleRayLeft.ActivateRay();
+        toggleRayRight.ActivateRay();
+        toggleRayLeft.ActivateRay();
     }
 
     private void DisplayWinCanvas()
     {
         GameObject canvasWin = GameObject.Find("Canvas_Win");
+        if (canvasWin == null) return;
         ToggleInterface toggleInterface = canvasWin.GetComponent<ToggleInterface>();
         toggleInterface.Toggle();
         ActivateControllRays();
